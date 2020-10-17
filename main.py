@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from pyrogram.errors import RPCError
@@ -31,7 +33,7 @@ def type(_, msg):
 
 
 client=None
-@app.on_message(filters.command("Jarvis,", prefixes=""))
+@app.on_message(filters.command("Alpha,", prefixes=""))
 def alpha(_, msg):
     global client
     if client is None:
@@ -39,7 +41,7 @@ def alpha(_, msg):
         config.read('config.ini')
         client = wolframalpha.Client(config['wolframalpha']['appId'])
         
-    query = msg.text.split("Jarvis, ", maxsplit=1)[1] 
+    query = msg.text.split("Alpha, ", maxsplit=1)[1] 
     res = client.query(query)
     msg.reply_text(next(res.results).text)
 
@@ -48,7 +50,7 @@ enableDarts=False
 @app.on_message(filters.command("darts"))
 def darts(_, msg):
     if not enableDarts:
-        msg.reply_text("Darts disabled")
+        #msg.reply_text("Darts disabled")
         return
     
     while True:
@@ -64,25 +66,27 @@ def darts(_, msg):
         else:
             try:
                 sent.delete()
-                sleep(1)
+                sleep(0.01)
             except RPCError as e:
                 sleep(e.x)
                 print(e)
 
 
-@app.on_message(filters.command("disableDarts"))
+@app.on_message(filters.command("disableDarts") & filters.me)
 def disable_darts(_, msg):
     global enableDarts
     enableDarts=False
+    msg.delete()
 
 
-@app.on_message(filters.command("enableDarts"))
+@app.on_message(filters.command("enableDarts") & filters.me)
 def enable_darts(_, msg):
     global enableDarts
     enableDarts=True
+    msg.delete()
 
 
-@app.on_message(filters.command("clearDarts"))
+@app.on_message(filters.command("clearDarts") & filters.me)
 def clear_darts(_, msg):
     found = app.search_messages(msg.chat.id, from_user=msg.from_user.username, limit=100)
     for message in found:
@@ -93,4 +97,5 @@ def clear_darts(_, msg):
             except RPCError as e:
                 sleep(e.x)
                 print(e)
+                
 app.run()
